@@ -11,16 +11,18 @@ const Navbar = () => {
   const queryClient = useQueryClient();
 
   const logout = async () => {
-    const res = await axios.get("/auth/logout");
+    const res = await axios.delete("/auth/logout");
     return res.data;
   };
   const handleLogOut = async () => {
     try {
-      await logout().then(() => {
-        queryClient.removeQueries("notes");
+      const res = await logout();
+      if (res) {
+        // queryClient.removeQueries("");
         setAuthUser(null);
+        localStorage.setItem("isLoggedIn", false);
         navigate("/login");
-      });
+      }
     } catch (err) {
       toast.error(err.response.data.message, {
         id: "logOut error",

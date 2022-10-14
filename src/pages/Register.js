@@ -34,18 +34,22 @@ const Register = () => {
       // create new user / register
       const userInfo = {
         username: data.username,
+        first_name: data.first_name,
+        last_name: data.last_name,
         email: data.email,
         password: data.password,
+        confirmPassword: data.confirmPassword,
       };
 
       try {
         setIsLoading(true);
-        await createNewUser(userInfo).then(() => {
+        const res = await createNewUser(userInfo);
+        if (res) {
           setIsLoading(false);
           navigate("/login");
-        });
+        }
       } catch (err) {
-        toast.error(err.response?.data?.message, {
+        toast.error(err.response.data.message, {
           id: "signUp error",
         });
       } finally {

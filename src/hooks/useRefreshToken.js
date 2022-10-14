@@ -3,7 +3,7 @@ import axios from "../api/axios";
 import useAuthUserContext from "../context/AuthUserContext";
 
 const logout = async () => {
-  const res = await axios.get("/auth/logout");
+  const res = await axios.delete("/auth/logout");
   return res.data;
 };
 
@@ -13,7 +13,7 @@ const useRefreshToken = () => {
 
   const refresh = async () => {
     try {
-      const res = await axios.get("/auth/refresh", {
+      const res = await axios.get("/auth/refresh-token", {
         withCredentials: true,
       });
       setAuthUser({
@@ -24,10 +24,12 @@ const useRefreshToken = () => {
       });
       return res.data.accessToken;
     } catch (error) {
-      await logout().then(() => {
+      const res = await logout();
+      if (res) {
         setAuthUser(null);
+        localStorage.setItem("isLoggedIn", false);
         navigate("/login");
-      });
+      }
     }
   };
   return refresh;

@@ -11,30 +11,37 @@ export const AuthUserContextProvider = ({ children }) => {
 
   // regenerate new token onMount
   useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
     const refresh = async () => {
       try {
-        await axios
-          .get("/auth/refresh", {
-            withCredentials: true,
-          })
-          .then((res) => {
-            setAuthUser({
-              username: res.data.username,
-              email: res.data.email,
-              role: res.data.role,
-              accessToken: res.data.accessToken,
-            });
-            navigate("/");
-          });
-      } catch (err) {
-        await axios.get("/auth/logout").then(() => {
-          setAuthUser(null);
-          navigate("/login");
+        const res = await axios.get("/auth/reload", {
+          withCredentials: true,
         });
+        if (res) {
+          setAuthUser({
+            username: res.data.username,
+            email: res.data.email,
+            role: res.data.role,
+            accessToken: res.data.accessToken,
+          });
+          navigate("/");
+        }
+      } catch (err) {
+        const res = await axios.delete("/auth/logout");
+        if (res) {
+          setAuthUser(null);
+          localStorage.setItem("isLoggedIn", false);
+          navigate("/login");
+        }
       }
     };
-    refresh();
+    if (isLoggedIn === true) {
+      refresh();
+    }
   }, []);
+
+  console.log(authUser);
   return (
     <AuthUserContext.Provider
       value={{

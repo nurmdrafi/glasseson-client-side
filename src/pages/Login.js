@@ -29,22 +29,21 @@ const Login = () => {
   const handleLogin = async (data) => {
     try {
       setIsLoading(true);
-      await login(data.email, data.password)
-        .then((res) => {
-          setAuthUser({
-            username: res.username,
-            email: res.email,
-            role: res.role,
-            accessToken: res.accessToken,
-          });
-        })
-        .then(() => {
-          setIsLoading(false);
-          navigate("/");
+      const res = await login(data.email, data.password);
+      if (res) {
+        setAuthUser({
+          username: res.username,
+          email: res.email,
+          role: res.role,
+          accessToken: res.accessToken,
         });
+        setIsLoading(false);
+        localStorage.setItem("isLoggedIn", true);
+        navigate("/");
+      }
     } catch (err) {
       setAuthUser(null);
-      toast.error(err.response?.data?.message, {
+      toast.error(err.response.data.message, {
         id: "logIn error",
       });
     } finally {
